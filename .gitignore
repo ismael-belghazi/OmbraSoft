@@ -1,0 +1,42 @@
+# --- Git ---
+.git
+
+# --- Environnements ---
+.env
+.env.*
+secrets.dev.yaml
+values.dev.yaml
+
+# --- IDE / OS ---
+.vscode
+.vs
+.idea
+.settings
+.project
+.classpath
+.toolstarget
+
+# --- Go ---
+bin/
+*.exe
+*.out
+
+# --- Node / Frontend ---
+node_modules/
+npm-debug.log
+dist/
+build/
+
+# --- Docker ---
+docker-compose.override.yml
+
+# --- Logs ---
+*.log
+
+# --- Database ---
+*.db
+*.dbmdl
+
+# --- Misc ---
+*.jfm
+*.user
