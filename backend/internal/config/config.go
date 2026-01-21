@@ -1,24 +1,56 @@
 package config
 
-import "os"
+import (
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
+)
 
 type Config struct {
-	Port     string
-	DBUrl    string
-	JWTSecret string
+	JWTSecret  string
+	DBHost     string
+	DBPort     string
+	DBUser     string
+	DBPassword string
+	DBName     string
+	GINMode    string
+	Port       string
 }
 
-func Load() Config {
-	return Config{
-		Port:      getEnv("PORT", "8080"),
-		DBUrl:     getEnv("DATABASE_URL", ""),
-		JWTSecret: getEnv("JWT_SECRET", "dev-secret"),
+var AppConfig *Config
+
+func Load() *Config {
+	_ = godotenv.Load()
+
+	AppConfig = &Config{
+		JWTSecret:  getEnv("JWT_SECRET", "your-secret-key-change-in-production"),
+		DBHost:     getEnv("DB_HOST", "localhost"),
+		DBPort:     getEnv("DB_PORT", "5432"),
+		DBUser:     getEnv("DB_USER", "postgres"),
+		DBPassword: getEnv("DB_PASSWORD", "postgres"),
+		DBName:     getEnv("DB_NAME", "ombrasoft"),
+		GINMode:    getEnv("GIN_MODE", "debug"),
+		Port:       getEnv("PORT", "8080"),
 	}
+
+	log.Printf("✓ Configuration chargée depuis variables d'environnement")
+	if AppConfig.GINMode == "debug" {
+		log.Println("⚠ Mode DEBUG activé - À désactiver en production")
+	}
+	return AppConfig
+}
+
+func GetJWTSecret() string {
+	if AppConfig != nil {
+		return AppConfig.JWTSecret
+	}
+	return "your-secret-key-change-in-production"
 }
 
 func getEnv(key, defaultValue string) string {
-	if v, ok := os.LookupEnv(key); ok {
-		return v
+	if value, exists := os.LookupEnv(key); exists {
+		return value
 	}
 	return defaultValue
 }
