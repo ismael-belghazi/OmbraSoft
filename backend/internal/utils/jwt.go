@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/bebeb/ombrasoft-backend/internal/config"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/ismael-belghazi/ombrasoft-backend/internal/config"
 )
 
 type Claims struct {

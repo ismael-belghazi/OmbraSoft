@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/bebeb/ombrasoft-backend/internal/middleware"
 	"github.com/gin-gonic/gin"
+	"github.com/ismael-belghazi/ombrasoft-backend/internal/middleware"
 )
 
 func SeriesRoutes(router *gin.Engine) {

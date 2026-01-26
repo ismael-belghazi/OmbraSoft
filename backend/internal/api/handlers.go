@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"github.com/bebeb/ombrasoft-backend/internal/models"
-	"github.com/bebeb/ombrasoft-backend/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/ismael-belghazi/ombrasoft-backend/internal/models"
+	"github.com/ismael-belghazi/ombrasoft-backend/internal/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 

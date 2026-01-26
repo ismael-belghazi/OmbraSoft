@@ -9,12 +9,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bebeb/ombrasoft-backend/internal/api/routes"
-	"github.com/bebeb/ombrasoft-backend/internal/config"
-	"github.com/bebeb/ombrasoft-backend/internal/db"
-	"github.com/bebeb/ombrasoft-backend/internal/services"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/ismael-belghazi/ombrasoft-backend/internal/api/routes"
+	"github.com/ismael-belghazi/ombrasoft-backend/internal/config"
+	"github.com/ismael-belghazi/ombrasoft-backend/internal/db"
+	"github.com/ismael-belghazi/ombrasoft-backend/internal/services"
 )
 
 func main() {

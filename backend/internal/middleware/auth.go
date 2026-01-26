@@ -3,8 +3,8 @@ package middleware
 import (
 	"strings"
 
-	"github.com/bebeb/ombrasoft-backend/internal/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/ismael-belghazi/ombrasoft-backend/internal/utils"
 )
 
 func AuthMiddleware() gin.HandlerFunc {

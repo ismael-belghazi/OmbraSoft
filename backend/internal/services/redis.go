@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/bebeb/ombrasoft-backend/internal/config"
+	"github.com/ismael-belghazi/ombrasoft-backend/internal/config"
 	"github.com/redis/go-redis/v9"
 )
 

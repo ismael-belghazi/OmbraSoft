@@ -1,4 +1,4 @@
-module github.com/bebeb/ombrasoft-backend
+module github.com/ismael-belghazi/ombrasoft-backend
 
 go 1.25.1
 

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/bebeb/ombrasoft-backend/internal/config"
-	"github.com/bebeb/ombrasoft-backend/internal/models"
+	"github.com/ismael-belghazi/ombrasoft-backend/internal/config"
+	"github.com/ismael-belghazi/ombrasoft-backend/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
