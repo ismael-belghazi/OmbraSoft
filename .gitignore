@@ -3,7 +3,8 @@
 
 # --- Environnements ---
 .env
-.env.*
+.env.local
+.env.production
 secrets.dev.yaml
 values.dev.yaml
 
