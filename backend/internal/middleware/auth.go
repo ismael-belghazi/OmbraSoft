@@ -16,14 +16,13 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
+		if !strings.HasPrefix(authHeader, "Bearer ") {
 			c.JSON(401, gin.H{"error": "Format de token invalide"})
 			c.Abort()
 			return
 		}
 
-		tokenString := parts[1]
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
 		claims, err := utils.VerifyToken(tokenString)
 		if err != nil {

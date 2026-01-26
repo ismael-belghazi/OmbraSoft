@@ -43,14 +43,14 @@ func Init() error {
 	})
 
 	if err != nil {
-		log.Printf("❌ Erreur connexion BD: %v", err)
+		log.Printf("Erreur connexion BD: %v", err)
 		return err
 	}
 
-	log.Println("✓ Connecté à PostgreSQL")
+	log.Println("Connecté à PostgreSQL")
 
 	if err := Migrate(); err != nil {
-		log.Printf("❌ Erreur migrations: %v", err)
+		log.Printf("Erreur migrations: %v", err)
 		return err
 	}
 
@@ -58,7 +58,7 @@ func Init() error {
 }
 
 func Migrate() error {
-	log.Println("🔄 Exécution des migrations...")
+	log.Println("Exécution des migrations...")
 	if err := DB.AutoMigrate(
 		&models.User{},
 		&models.Series{},
