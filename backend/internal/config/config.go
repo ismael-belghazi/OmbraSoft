@@ -62,7 +62,7 @@ func Load() *Config {
 		JWTExpiry: 24,
 
 		// CORS
-		AllowOrigins: parseOrigins(getEnv("ALLOW_ORIGINS", "http://localhost:5173,http://localhost:3000")),
+		AllowOrigins: parseOrigins(getEnv("ALLOW_ORIGINS", "")),
 	}
 
 	// Mode production = SSL obligatoire si DATABASE_URL absent
@@ -80,16 +80,29 @@ func Load() *Config {
 }
 
 func validateConfig(c *Config) {
-	if c.JWTSecret == "" || c.JWTSecret == "dev_secret" {
-		log.Fatal("JWT_SECRET non configuré! Utilisez une clé sécurisée en production")
+	// JWT_SECRET obligatoire partout
+	if c.JWTSecret == "" {
+		log.Fatal("❌ JWT_SECRET requis! Configurez une variable d'environnement")
 	}
-	if c.GINMode == "release" && len(c.AllowOrigins) == 0 {
-		log.Fatal("ALLOW_ORIGINS vide en production!")
+
+	// Production mode = validation stricte
+	if c.GINMode == "release" {
+		// DATABASE_URL obligatoire en prod
+		if c.DatabaseURL == "" {
+			log.Fatal("❌ DATABASE_URL obligatoire en production (GIN_MODE=release)")
+		}
+
+		// ALLOW_ORIGINS obligatoire en prod
+		if len(c.AllowOrigins) == 0 {
+			log.Fatal("❌ ALLOW_ORIGINS obligatoire en production! (ex: https://example.vercel.app)")
+		}
+
+		log.Println("✓ Production mode - Configuration stricte validée")
 	}
 }
 
 func logConfig(c *Config) {
-	log.Println("✓ Configuration chargée")
+	log.Println("Configuration chargée")
 	log.Printf("  - Mode: %s", c.GINMode)
 	log.Printf("  - Port: %s", c.Port)
 	if c.DatabaseURL != "" {
@@ -103,7 +116,7 @@ func logConfig(c *Config) {
 		log.Printf("  - Redis: Désactivé")
 	}
 	if c.GINMode == "debug" {
-		log.Println("⚠  Mode DEBUG = Désactiver en production!")
+		log.Println("Mode DEBUG = Désactiver en production!")
 	}
 }
 
