@@ -1,0 +1,36 @@
+name: Sync Secrets & Deploy to Render
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Sync env vars to Render
+        run: |
+          sync_var () {
+            curl -s -X PUT \
+              -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+              -H "Content-Type: application/json" \
+              https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/env-vars/$1 \
+              -d "{\"value\":\"$2\"}"
+          }
+
+          sync_var DB_HOST "${{ secrets.DB_HOST }}"
+          sync_var DB_PORT "${{ secrets.DB_PORT }}"
+          sync_var DB_USER "${{ secrets.DB_USER }}"
+          sync_var DB_PASSWORD "${{ secrets.DB_PASSWORD }}"
+          sync_var DB_NAME "${{ secrets.DB_NAME }}"
+          sync_var DB_SSLMODE "${{ secrets.DB_SSLMODE }}"
+          sync_var REDIS_URL "${{ secrets.REDIS_URL }}"
+          sync_var JWT_SECRET "${{ secrets.JWT_SECRET }}"
+          sync_var ALLOW_ORIGINS "${{ secrets.ALLOW_ORIGINS }}"
+
+      - name: Trigger Render Deploy
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys
