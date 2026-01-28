@@ -13,21 +13,33 @@ jobs:
     steps:
       - name: Sync env vars to Render
         run: |
-          curl -X PUT \
+          payload=$(jq -n \
+            --arg DB_HOST "${{ secrets.DB_HOST }}" \
+            --arg DB_PORT "${{ secrets.DB_PORT }}" \
+            --arg DB_USER "${{ secrets.DB_USER }}" \
+            --arg DB_PASSWORD "${{ secrets.DB_PASSWORD }}" \
+            --arg DB_NAME "${{ secrets.DB_NAME }}" \
+            --arg DB_SSLMODE "${{ secrets.DB_SSLMODE }}" \
+            --arg REDIS_URL "${{ secrets.REDIS_URL }}" \
+            --arg JWT_SECRET "${{ secrets.JWT_SECRET }}" \
+            --arg ALLOW_ORIGINS "${{ secrets.ALLOW_ORIGINS }}" \
+            '[
+              {"key":"DB_HOST","value":$DB_HOST},
+              {"key":"DB_PORT","value":$DB_PORT},
+              {"key":"DB_USER","value":$DB_USER},
+              {"key":"DB_PASSWORD","value":$DB_PASSWORD},
+              {"key":"DB_NAME","value":$DB_NAME},
+              {"key":"DB_SSLMODE","value":$DB_SSLMODE},
+              {"key":"REDIS_URL","value":$REDIS_URL},
+              {"key":"JWT_SECRET","value":$JWT_SECRET},
+              {"key":"ALLOW_ORIGINS","value":$ALLOW_ORIGINS}
+            ]')
+
+          curl -v -X PUT \
             -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
             -H "Content-Type: application/json" \
             https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/env-vars \
-            -d '[
-              {"key":"DB_HOST","value":"${{ secrets.DB_HOST }}"},
-              {"key":"DB_PORT","value":"${{ secrets.DB_PORT }}"},
-              {"key":"DB_USER","value":"${{ secrets.DB_USER }}"},
-              {"key":"DB_PASSWORD","value":"${{ secrets.DB_PASSWORD }}"},
-              {"key":"DB_NAME","value":"${{ secrets.DB_NAME }}"},
-              {"key":"DB_SSLMODE","value":"${{ secrets.DB_SSLMODE }}"},
-              {"key":"REDIS_URL","value":"${{ secrets.REDIS_URL }}"},
-              {"key":"JWT_SECRET","value":"${{ secrets.JWT_SECRET }}"},
-              {"key":"ALLOW_ORIGINS","value":"${{ secrets.ALLOW_ORIGINS }}"}
-            ]'
+            -d "$payload"
 
       - name: Trigger Render Deploy
         run: |
