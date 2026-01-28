@@ -11,6 +11,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Debug RENDER_SERVICE_ID
+        run: |
+          if [ -z "${{ secrets.RENDER_SERVICE_ID }}" ]; then
+            echo "RENDER_SERVICE_ID est vide !"
+            exit 1
+          else
+            echo "RENDER_SERVICE_ID est présent"
+          fi
+
+      - name: Show API URL (masked)
+        run: |
+          URL="https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/env-vars"
+          echo "URL API Render : ${URL//${{ secrets.RENDER_SERVICE_ID }}/****}"
+
       - name: Sync env vars to Render
         run: |
           payload=$(jq -n \
@@ -23,7 +37,7 @@ jobs:
             --arg REDIS_URL "${{ secrets.REDIS_URL }}" \
             --arg JWT_SECRET "${{ secrets.JWT_SECRET }}" \
             --arg ALLOW_ORIGINS "${{ secrets.ALLOW_ORIGINS }}" \
-            '[
+            '[ 
               {"key":"DB_HOST","value":$DB_HOST},
               {"key":"DB_PORT","value":$DB_PORT},
               {"key":"DB_USER","value":$DB_USER},
