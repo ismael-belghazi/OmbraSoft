@@ -1,0 +1,36 @@
+name: Sync Secrets & Deploy to Render (branch 1.1)
+
+on:
+  push:
+    branches:
+      - 1.1
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Sync env vars to Render
+        run: |
+          curl -X PUT \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/env-vars \
+            -d '[
+              {"key":"DB_HOST","value":"${{ secrets.DB_HOST }}"},
+              {"key":"DB_PORT","value":"${{ secrets.DB_PORT }}"},
+              {"key":"DB_USER","value":"${{ secrets.DB_USER }}"},
+              {"key":"DB_PASSWORD","value":"${{ secrets.DB_PASSWORD }}"},
+              {"key":"DB_NAME","value":"${{ secrets.DB_NAME }}"},
+              {"key":"DB_SSLMODE","value":"${{ secrets.DB_SSLMODE }}"},
+              {"key":"REDIS_URL","value":"${{ secrets.REDIS_URL }}"},
+              {"key":"JWT_SECRET","value":"${{ secrets.JWT_SECRET }}"},
+              {"key":"ALLOW_ORIGINS","value":"${{ secrets.ALLOW_ORIGINS }}"}
+            ]'
+
+      - name: Trigger Render Deploy
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys
