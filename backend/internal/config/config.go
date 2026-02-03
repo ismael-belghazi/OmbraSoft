@@ -40,11 +40,9 @@ func Load() *Config {
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		// Server
 		Port:    getEnv("PORT", "8080"),
 		GINMode: getEnv("GIN_MODE", "debug"),
 
-		// Database
 		DatabaseURL: getEnv("DATABASE_URL", ""),
 		DBHost:      getEnv("DB_HOST", "postgres"),
 		DBPort:      getEnv("DB_PORT", "5432"),
@@ -53,23 +51,25 @@ func Load() *Config {
 		DBName:      getEnv("DB_NAME", "ombrasoft"),
 		DBSSLMode:   getEnv("DB_SSLMODE", "disable"),
 
-		// Redis
 		RedisURL: getEnv("REDIS_URL", ""),
 		RedisDB:  0,
 
-		// JWT
 		JWTSecret: getEnv("JWT_SECRET", ""),
 		JWTExpiry: 24,
 
-		// CORS
 		AllowOrigins: parseOrigins(getEnv("ALLOW_ORIGINS", "")),
 	}
 
-	// Mode production = SSL obligatoire si DATABASE_URL absent
-	if cfg.GINMode == "release" {
-		if cfg.DBSSLMode == "disable" && cfg.DatabaseURL == "" {
-			cfg.DBSSLMode = "require"
-		}
+	if cfg.DatabaseURL != "" {
+		log.Println("Production detected - using DATABASE_URL")
+		cfg.DBHost = ""
+		cfg.DBPort = ""
+		cfg.DBUser = ""
+		cfg.DBPassword = ""
+		cfg.DBName = ""
+		cfg.DBSSLMode = ""
+	} else {
+		log.Println("Local mode detected - using local Docker DB")
 	}
 
 	validateConfig(cfg)
@@ -80,24 +80,20 @@ func Load() *Config {
 }
 
 func validateConfig(c *Config) {
-	// JWT_SECRET obligatoire partout
 	if c.JWTSecret == "" {
-		log.Fatal("❌ JWT_SECRET requis! Configurez une variable d'environnement")
+		log.Fatal("JWT_SECRET requis! Configurez une variable d'environnement")
 	}
 
-	// Production mode = validation stricte
 	if c.GINMode == "release" {
-		// DATABASE_URL obligatoire en prod
 		if c.DatabaseURL == "" {
-			log.Fatal("❌ DATABASE_URL obligatoire en production (GIN_MODE=release)")
+			log.Fatal("DATABASE_URL obligatoire en production (GIN_MODE=release)")
 		}
 
-		// ALLOW_ORIGINS obligatoire en prod
 		if len(c.AllowOrigins) == 0 {
-			log.Fatal("❌ ALLOW_ORIGINS obligatoire en production! (ex: https://example.vercel.app)")
+			log.Fatal("ALLOW_ORIGINS obligatoire en production! (ex: https://example.vercel.app)")
 		}
 
-		log.Println("✓ Production mode - Configuration stricte validée")
+		log.Println("Production mode - Configuration stricte validée")
 	}
 }
 

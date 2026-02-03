@@ -1,12 +1,78 @@
 package utils
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
+	"net/http"
+	"os"
+	"sync"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/ismael-belghazi/ombrasoft-backend/internal/config"
 )
+
+var resetTokens = struct {
+	sync.RWMutex
+	tokens map[string]string
+}{tokens: make(map[string]string)}
+
+func SaveResetToken(userID, token string) {
+	resetTokens.Lock()
+	defer resetTokens.Unlock()
+	resetTokens.tokens[userID] = token
+}
+
+func GetResetToken(userID string) (string, bool) {
+	resetTokens.RLock()
+	defer resetTokens.RUnlock()
+	t, ok := resetTokens.tokens[userID]
+	return t, ok
+}
+
+func DeleteResetToken(userID string) {
+	resetTokens.Lock()
+	defer resetTokens.Unlock()
+	delete(resetTokens.tokens, userID)
+}
+
+type AppriseRequest struct {
+	Title   string `json:"title"`
+	Message string `json:"body"`
+	Target  string `json:"target"`
+}
+
+func SendAppriseEmail(to, subject, message string) error {
+	appriseURL := os.Getenv("APPRISE_URL")
+	if appriseURL == "" {
+		return errors.New("APPRISE_URL non défini")
+	}
+
+	payload := AppriseRequest{
+		Title:   subject,
+		Message: message,
+		Target:  to,
+	}
+
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Post(appriseURL, "application/json", bytes.NewBuffer(data))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return errors.New("erreur lors de l'envoi via Apprise")
+	}
+
+	return nil
+}
 
 type Claims struct {
 	UserID string `json:"user_id"`

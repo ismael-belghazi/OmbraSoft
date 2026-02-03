@@ -1,0 +1,98 @@
+version: "3.9"
+
+services:
+  # Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ombrasoft-backend
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: ${PORT}
+      GIN_MODE: ${GIN_MODE}
+      DATABASE_URL: ${DATABASE_URL}   
+      DB_HOST: ${DB_HOST}         
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_SSLMODE: ${DB_SSLMODE}
+      JWT_SECRET: ${JWT_SECRET}
+      ALLOW_ORIGINS: ${ALLOW_ORIGINS}
+      REDIS_URL: ${REDIS_URL} 
+      APPRISE_URL: http://apprise:8000  
+    depends_on:
+      db:
+        condition: service_healthy
+      apprise:
+        condition: service_started
+    networks:
+      - ombrasoft-network
+
+  apprise:
+    image: caronc/apprise:latest
+    container_name: ombrasoft-apprise
+    restart: unless-stopped
+    environment:
+      APPRISE_URLS: "mailto://user:pass@gmail.com,discord://TOKEN@channel,pushbullet://TOKEN"
+    ports:
+      - "8000:8000" 
+    networks:
+      - ombrasoft-network
+
+  # Local PostgreSQL pour développement
+  db:
+    image: postgres:16-alpine
+    container_name: ombrasoft-db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_INITDB_ARGS: "-c max_connections=100"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ombrasoft-network
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ombrasoft-frontend
+    ports:
+      - "5173:5173"  
+    environment:
+      REACT_APP_API_URL: "http://backend:8080"  
+    networks:
+      - ombrasoft-network
+
+  # PgAdmin pour gérer la DB locale
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ombrasoft-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - ombrasoft-network
+
+volumes:
+  pgdata:
+
+networks:
+  ombrasoft-network:
+    driver: bridge

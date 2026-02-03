@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { bookmarkService } from '../services/bookmarkService'
-import '../styles/pages.css'
+import '../styles/css.css'
 
 export default function Bookmarks() {
   const [bookmarks, setBookmarks] = useState([])

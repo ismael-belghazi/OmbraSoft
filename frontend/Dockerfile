@@ -1,29 +1,19 @@
-# Builder stage
-FROM node:20-alpine AS builder
+# Utiliser une image Node.js pour le frontend
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Install dependencies
+# Copier package.json et package-lock.json
 COPY package*.json ./
-RUN npm ci
 
-# Build the app
+# Installer les dépendances
+RUN npm install
+
+# Copier tout le code source
 COPY . .
-RUN npm run build
 
-# Runtime stage - Nginx
-FROM nginx:alpine
+# Exposer le port utilisé par Vite (généralement 5173)
+EXPOSE 5173
 
-# Copy nginx config
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Copy built app from builder
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+# Lancer l'application avec npm run dev (mode développement)
+CMD ["npm", "run", "dev"]

@@ -66,7 +66,7 @@ func Migrate() error {
 	); err != nil {
 		return err
 	}
-	log.Println("✓ Migrations OK")
+	log.Println("Migrations OK")
 	return nil
 }
 

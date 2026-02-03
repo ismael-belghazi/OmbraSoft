@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { bookmarkService } from '../services/bookmarkService'
-import '../styles/pages.css'
+import { useNavigate } from 'react-router-dom'
+import '../styles/css.css'
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [bookmarks, setBookmarks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -39,9 +41,7 @@ export default function Dashboard() {
   return (
     <div className="page-container">
       <h1>Bienvenue, {user?.email}</h1>
-      
       {error && <div className="error-message">{error}</div>}
-      
       {loading ? (
         <p>Chargement...</p>
       ) : (

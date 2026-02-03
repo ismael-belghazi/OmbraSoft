@@ -1,0 +1,393 @@
+/* ===== Global Dark Mode ===== */
+body, html {
+  background-color: #121212;  /* Fond plus sombre */
+  color: #e0e0e0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  transition: all 0.3s ease-in-out; /* Transition fluide pour les changements de thème */
+}
+
+/* ===== Navbar ===== */
+.navbar {
+  background-color: #1e1e2f; /* Fond plus sombre avec une nuance */
+  padding: 0;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 999;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+}
+
+.navbar-logo {
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-decoration: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.navbar-logo:hover {
+  opacity: 0.8;
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-link {
+  color: #e0e0e0;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: color 0.3s, transform 0.3s;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  color: #3498db;
+  transform: translateY(-3px); /* Effet d’élévation lors du survol */
+}
+
+.nav-user {
+  color: #bdc3c7;
+  font-size: 0.9rem;
+}
+
+.logout-btn {
+  background-color: #e74c3c;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.settings-button {
+  background-color: #34495e;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s;
+}
+
+.settings-button:hover {
+  background-color: #2c3e50;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== Page Container ===== */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem;
+  flex: 1;
+  background-color: #1f1f2e;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+
+  margin-top: 80px;
+}
+
+
+.page-container h1 {
+  color: #fff;
+  margin-bottom: 2rem;
+}
+
+.page-container h2 {
+  color: #ccc;
+  margin-bottom: 1.5rem;
+}
+
+.error-message {
+  background-color: #d9534f;
+  color: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border-left: 5px solid #c9302c;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== Dashboard ===== */
+.dashboard-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 100px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card {
+  background: #2a2a3f;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+.stat-card h3 {
+  color: #aaa;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #3498db;
+}
+
+/* ===== Recent Bookmarks ===== */
+.recent-bookmarks {
+  background: #2a2a3f;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  grid-column: 1 / -1;
+}
+
+.bookmarks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bookmark-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem;
+  border-bottom: 1px solid #444;
+  transition: background-color 0.3s ease;
+  border-radius: 8px;
+}
+
+.bookmark-item:hover {
+  background-color: #3a3a55;
+}
+
+.bookmark-item:last-child {
+  border-bottom: none;
+}
+
+/* ===== Bookmarks Table ===== */
+.bookmarks-container {
+  background: #2a2a3f;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  padding: 2rem;
+  overflow-x: auto;
+}
+
+.bookmarks-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bookmarks-table thead {
+  background-color: #3a3a55;
+}
+
+.bookmarks-table th {
+  padding: 1.2rem;
+  text-align: left;
+  font-weight: 600;
+  color: #fff;
+  border-bottom: 2px solid #555;
+}
+
+.bookmarks-table td {
+  padding: 1.2rem;
+  border-bottom: 1px solid #444;
+  color: #e0e0e0;
+}
+
+.bookmarks-table a {
+  color: #3498db;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.bookmarks-table a:hover {
+  color: #2980b9;
+  text-decoration: underline;
+}
+
+.delete-btn {
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== Auth Page ===== */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 60px);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.auth-form {
+  background: #2a2a3f;
+  padding: 3rem;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-form h2 {
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #fff;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #333;
+  transition: border-color 0.3s;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.auth-form button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.auth-form button:hover:not(:disabled) {
+  background-color: #5568d3;
+}
+
+.auth-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-form p {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #ccc;
+}
+
+.auth-form a {
+  color: #667eea;
+  text-decoration: none;
+}
+
+.auth-form a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #c33;
+}
+
+/* ===== Responsive Styles ===== */
+@media (max-width: 768px) {
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .bookmarks-table {
+    font-size: 0.9rem;
+  }
+
+  .bookmarks-table th,
+  .bookmarks-table td {
+    padding: 0.9rem;
+  }
+
+  .navbar-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .nav-menu {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .auth-form {
+    padding: 2rem;
+    margin: 1rem;
+  }
+}

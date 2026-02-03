@@ -5,7 +5,7 @@ import (
 	"github.com/ismael-belghazi/ombrasoft-backend/internal/middleware"
 )
 
-func BookmarksRoutes(router *gin.Engine) {
+func BookmarksRoutes(router *gin.RouterGroup) {
 	bookmarks := router.Group("/bookmarks")
 	bookmarks.Use(middleware.AuthMiddleware())
 	{

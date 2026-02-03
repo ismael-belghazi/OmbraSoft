@@ -7,6 +7,8 @@ type User struct {
 	Email        string    `json:"email" gorm:"unique;not null"`
 	PasswordHash string    `json:"-"`
 	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	SecretHash   string    `json:"-"`
 }
 
 type Series struct {
@@ -26,4 +28,14 @@ type Bookmark struct {
 	UpdatedAt       time.Time `json:"updated_at"`
 	User            User      `json:"user" gorm:"foreignKey:UserID"`
 	Series          Series    `json:"series" gorm:"foreignKey:SeriesID"`
+}
+
+type UserNotifications struct {
+	ID        string `gorm:"primaryKey"`
+	UserID    string `gorm:"uniqueIndex"`
+	Email     bool
+	Push      bool
+	DiscordID string `gorm:"column:discord_id"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

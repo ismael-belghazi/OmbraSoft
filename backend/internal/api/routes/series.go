@@ -5,7 +5,7 @@ import (
 	"github.com/ismael-belghazi/ombrasoft-backend/internal/middleware"
 )
 
-func SeriesRoutes(router *gin.Engine) {
+func SeriesRoutes(router *gin.RouterGroup) {
 	series := router.Group("/series")
 	series.Use(middleware.AuthMiddleware())
 	{

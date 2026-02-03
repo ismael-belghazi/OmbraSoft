@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import '../styles/auth.css'
+import '../styles/css.css'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -43,6 +43,11 @@ export default function Login() {
         <button type="submit" disabled={loading}>
           {loading ? 'Connexion...' : 'Se connecter'}
         </button>
+
+        <p className="forgot-password">
+          <Link to="/forgot-password">Mot de passe oublié ?</Link>
+        </p>
+
         <p>
           Pas encore de compte ? <Link to="/register">S'inscrire</Link>
         </p>

@@ -14,6 +14,7 @@ import (
 	"github.com/ismael-belghazi/ombrasoft-backend/internal/api/routes"
 	"github.com/ismael-belghazi/ombrasoft-backend/internal/config"
 	"github.com/ismael-belghazi/ombrasoft-backend/internal/db"
+	"github.com/ismael-belghazi/ombrasoft-backend/internal/middleware"
 	"github.com/ismael-belghazi/ombrasoft-backend/internal/services"
 )
 
@@ -33,6 +34,7 @@ func main() {
 	if cfg.GINMode == "release" {
 		gin.SetMode(gin.ReleaseMode)
 	}
+
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
 
@@ -53,8 +55,14 @@ func main() {
 	})
 
 	routes.AuthRoutes(r)
-	routes.SeriesRoutes(r)
-	routes.BookmarksRoutes(r)
+
+	protected := r.Group("/")
+	protected.Use(middleware.AuthMiddleware())
+
+	routes.SeriesRoutes(protected)
+	routes.BookmarksRoutes(protected)
+
+	routes.NotificationRoutes(protected)
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.Port,
@@ -64,14 +72,14 @@ func main() {
 		IdleTimeout:  60 * time.Second,
 	}
 
-	log.Printf("Backend démarré sur port %s (Mode: %s)", cfg.Port, cfg.GINMode)
+	log.Printf("Backend démarré sur le port %s (mode: %s)", cfg.Port, cfg.GINMode)
 
 	go func() {
 		sigint := make(chan os.Signal, 1)
 		signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
 		<-sigint
 
-		log.Println("⏸  Arrêt gracieux...")
+		log.Println("Arrêt gracieux...")
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
