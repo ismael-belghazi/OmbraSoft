@@ -10,8 +10,16 @@ export default function Dashboard() {
   const [bookmarks, setBookmarks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  
+  useEffect(() => {
+    if (!user) {
+      navigate('/login') 
+    }
+  }, [user, navigate])
 
   useEffect(() => {
+    if (!user) return;
+
     let isMounted = true
 
     const fetchBookmarks = async () => {
@@ -36,12 +44,14 @@ export default function Dashboard() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [user])
 
   return (
     <div className="page-container">
       <h1>Bienvenue, {user?.email}</h1>
+      
       {error && <div className="error-message">{error}</div>}
+      
       {loading ? (
         <p>Chargement...</p>
       ) : (
@@ -62,7 +72,7 @@ export default function Dashboard() {
                 {bookmarks.map((bookmark) => (
                   <li key={bookmark.id} className="bookmark-item">
                     <span>{bookmark.series?.title || 'Série'}</span>
-                    <span>Chapitre {bookmark.last_read_chapter}</span>
+                    <span>Chapitre {bookmark.last_read_chapter || 'N/A'}</span>
                   </li>
                 ))}
               </ul>

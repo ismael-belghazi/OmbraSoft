@@ -3,6 +3,7 @@ module github.com/ismael-belghazi/ombrasoft-backend
 go 1.25.1
 
 require (
+	github.com/PuerkitoBio/goquery v1.11.0
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.11.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
@@ -14,6 +15,7 @@ require (
 )
 
 require (
+	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 )

@@ -39,3 +39,12 @@ type UserNotifications struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+type Chapter struct {
+	ID        string    `json:"id" gorm:"primaryKey"`
+	SeriesID  string    `json:"series_id" gorm:"not null"`
+	URL       string    `json:"url" gorm:"not null"`
+	Number    int       `json:"number"`
+	Title     string    `json:"title"`
+	CreatedAt time.Time `json:"created_at"`
+}

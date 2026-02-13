@@ -2,7 +2,6 @@ import os
 import requests
 from apprise import Apprise, NotifyFormat
 
-# Variables d'environnement
 DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 PUSHBULLET_URL = os.getenv('PUSHBULLET_URL') 
 TELEGRAM_URL = os.getenv('TELEGRAM_URL')     

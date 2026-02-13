@@ -16,11 +16,11 @@ type NotificationSettingsRequest struct {
 }
 
 func GetNotificationSettings(c *gin.Context) {
-	userID := c.GetString("user_id")
+	userID := c.GetString("userID")
 	var settings models.UserNotifications
 
-	db := db.GetDB()
-	if err := db.Where("user_id = ?", userID).First(&settings).Error; err != nil {
+	database := db.GetDB()
+	if err := database.Where("user_id = ?", userID).First(&settings).Error; err != nil {
 		c.JSON(http.StatusOK, gin.H{"push": true, "discord_id": ""})
 		return
 	}
@@ -32,28 +32,28 @@ func GetNotificationSettings(c *gin.Context) {
 }
 
 func UpdateNotificationSettings(c *gin.Context) {
-	userID := c.GetString("user_id")
+	userID := c.GetString("userID")
 	var req NotificationSettingsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
 	}
 
-	db := db.GetDB()
+	database := db.GetDB()
 	var settings models.UserNotifications
 
-	if err := db.Where("user_id = ?", userID).First(&settings).Error; err != nil {
+	if err := database.Where("user_id = ?", userID).First(&settings).Error; err != nil {
 		settings = models.UserNotifications{
 			ID:        uuid.NewString(),
 			UserID:    userID,
 			Push:      req.Push,
 			DiscordID: req.DiscordID,
 		}
-		db.Create(&settings)
+		database.Create(&settings)
 	} else {
 		settings.Push = req.Push
 		settings.DiscordID = req.DiscordID
-		db.Save(&settings)
+		database.Save(&settings)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Préférences mises à jour"})
@@ -64,7 +64,6 @@ func NotificationRoutes(router *gin.RouterGroup) {
 	notify.Use(middleware.AuthMiddleware())
 	{
 		notify.GET("/notifications", GetNotificationSettings)
-
 		notify.POST("/notifications", UpdateNotificationSettings)
 	}
 }

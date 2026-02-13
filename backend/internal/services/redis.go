@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -46,23 +47,45 @@ func CloseRedis() error {
 	return nil
 }
 
-func CacheSet(ctx context.Context, key string, value string, ttl time.Duration) error {
+func CacheSet(ctx context.Context, key, value string, ttl time.Duration) error {
 	if RedisClient == nil {
-		return nil
+		return fmt.Errorf("redis client not initialized")
 	}
-	return RedisClient.Set(ctx, key, value, ttl).Err()
+
+	if ttl == 0 {
+		ttl = 1 * time.Hour
+	}
+
+	err := RedisClient.Set(ctx, key, value, ttl).Err()
+	if err != nil {
+		log.Printf("Erreur lors de la mise en cache dans Redis: %v", err)
+	}
+	return err
 }
 
 func CacheGet(ctx context.Context, key string) (string, error) {
 	if RedisClient == nil {
-		return "", nil
+		return "", fmt.Errorf("redis client not initialized")
 	}
-	return RedisClient.Get(ctx, key).Result()
+
+	value, err := RedisClient.Get(ctx, key).Result()
+	if err == redis.Nil {
+		return "", nil
+	} else if err != nil {
+		log.Printf("Erreur lors de la récupération du cache Redis: %v", err)
+		return "", err
+	}
+	return value, nil
 }
 
 func CacheDel(ctx context.Context, keys ...string) error {
 	if RedisClient == nil {
-		return nil
+		return fmt.Errorf("redis client not initialized")
 	}
-	return RedisClient.Del(ctx, keys...).Err()
+
+	err := RedisClient.Del(ctx, keys...).Err()
+	if err != nil {
+		log.Printf("Erreur lors de la suppression de cache Redis: %v", err)
+	}
+	return err
 }

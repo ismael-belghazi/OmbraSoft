@@ -22,12 +22,12 @@ func main() {
 	cfg := config.Load()
 
 	if err := db.Init(); err != nil {
-		log.Fatalf("Erreur DB: %v", err)
+		log.Fatalf("Database error: %v", err)
 	}
 
 	if cfg.RedisURL != "" {
 		if err := services.InitRedis(); err != nil {
-			log.Fatalf("Erreur Redis: %v", err)
+			log.Printf("Error initializing Redis: %v", err)
 		}
 	}
 
@@ -56,12 +56,13 @@ func main() {
 
 	routes.AuthRoutes(r)
 
+	bookmarkService := services.NewBookmarkSeriesService(db.DB)
+
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 
-	routes.SeriesRoutes(protected)
-	routes.BookmarksRoutes(protected)
-
+	routes.SeriesRoutes(protected, bookmarkService)
+	routes.BookmarksRoutes(protected, bookmarkService)
 	routes.NotificationRoutes(protected)
 
 	srv := &http.Server{
@@ -72,26 +73,33 @@ func main() {
 		IdleTimeout:  60 * time.Second,
 	}
 
-	log.Printf("Backend démarré sur le port %s (mode: %s)", cfg.Port, cfg.GINMode)
+	log.Printf("Backend started on port %s (mode: %s)", cfg.Port, cfg.GINMode)
 
+	// Gestion de l'arrêt du serveur (graceful shutdown)
 	go func() {
 		sigint := make(chan os.Signal, 1)
 		signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
 		<-sigint
 
-		log.Println("Arrêt gracieux...")
+		log.Println("Graceful shutdown...")
+
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		if err := srv.Shutdown(ctx); err != nil {
-			log.Printf("Erreur shutdown: %v", err)
+			log.Printf("Error during server shutdown: %v", err)
 		}
 
-		_ = db.Close()
-		_ = services.CloseRedis()
+		if err := db.Close(); err != nil {
+			log.Printf("Error closing DB connection: %v", err)
+		}
+
+		if err := services.CloseRedis(); err != nil {
+			log.Printf("Error closing Redis connection: %v", err)
+		}
 	}()
 
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("Erreur serveur: %v", err)
+		log.Fatalf("Server error: %v", err)
 	}
 }

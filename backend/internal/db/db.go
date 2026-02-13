@@ -63,6 +63,8 @@ func Migrate() error {
 		&models.User{},
 		&models.Series{},
 		&models.Bookmark{},
+		&models.UserNotifications{},
+		&models.Chapter{}, // <-- ajouté ici
 	); err != nil {
 		return err
 	}
