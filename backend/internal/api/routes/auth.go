@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,26 +9,15 @@ import (
 	"github.com/ismael-belghazi/ombrasoft-backend/internal/models"
 	"github.com/ismael-belghazi/ombrasoft-backend/internal/utils"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
-
-type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-}
 
 type RegisterRequest struct {
 	Email        string `json:"email" binding:"required,email"`
 	Password     string `json:"password" binding:"required,min=6"`
-	SecretPhrase string `json:"secret_phrase" binding:"required,min=10"`
+	SecretPhrase string `json:"secretPhrase" binding:"required,min=10"`
 }
 
-type ForgotPasswordRequest struct {
-	Email        string `json:"email" binding:"required,email"`
-	SecretPhrase string `json:"secret_phrase" binding:"required,min=10"`
-}
-
-type ResetPasswordRequest struct {
+type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=6"`
 }
@@ -47,41 +35,37 @@ type AuthResponse struct {
 func Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input", "details": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	var existing models.User
-	err := db.GetDB().Where("email = ?", req.Email).First(&existing).Error
-	if err == nil {
+	if err := db.GetDB().Where("email = ?", req.Email).First(&existing).Error; err == nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "Email déjà utilisé"})
 		return
 	}
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur serveur"})
-		return
-	}
 
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-	hashedSecret, _ := bcrypt.GenerateFromPassword([]byte(req.SecretPhrase), bcrypt.DefaultCost)
+	passHash, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	secretHash, _ := bcrypt.GenerateFromPassword([]byte(req.SecretPhrase), bcrypt.DefaultCost)
 
-	user := &models.User{
-		ID:           uuid.NewString(),
+	user := models.User{
+		ID:           uuid.New(),
 		Email:        req.Email,
-		PasswordHash: string(hashedPassword),
-		SecretHash:   string(hashedSecret),
+		PasswordHash: string(passHash),
+		SecretHash:   string(secretHash),
 	}
 
-	if err := db.GetDB().Create(user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur serveur"})
+	if err := db.GetDB().Create(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur création utilisateur"})
 		return
 	}
 
-	token, _ := utils.GenerateToken(user.ID, user.Email)
+	token, _ := utils.GenerateToken(user.ID.String(), user.Email)
+
 	c.JSON(http.StatusCreated, AuthResponse{
 		Token: token,
 		User: UserResponse{
-			ID:    user.ID,
+			ID:    user.ID.String(),
 			Email: user.Email,
 		},
 	})
@@ -90,7 +74,7 @@ func Register(c *gin.Context) {
 func Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -105,20 +89,19 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, _ := utils.GenerateToken(user.ID, user.Email)
+	token, _ := utils.GenerateToken(user.ID.String(), user.Email)
+
 	c.JSON(http.StatusOK, AuthResponse{
 		Token: token,
 		User: UserResponse{
-			ID:    user.ID,
+			ID:    user.ID.String(),
 			Email: user.Email,
 		},
 	})
 }
 
-func AuthRoutes(router *gin.Engine) {
-	auth := router.Group("/auth")
-	{
-		auth.POST("/register", Register)
-		auth.POST("/login", Login)
-	}
+func AuthRoutes(r *gin.Engine) {
+	auth := r.Group("/auth")
+	auth.POST("/register", Register)
+	auth.POST("/login", Login)
 }

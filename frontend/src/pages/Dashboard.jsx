@@ -10,23 +10,34 @@ export default function Dashboard() {
   const [bookmarks, setBookmarks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  
+
+  // Redirection si non connecté
   useEffect(() => {
     if (!user) {
-      navigate('/login') 
+      navigate('/login')
     }
   }, [user, navigate])
 
+  // Récupération des bookmarks de l'utilisateur
   useEffect(() => {
-    if (!user) return;
+    if (!user) return
 
     let isMounted = true
 
     const fetchBookmarks = async () => {
       try {
+        setLoading(true)
         const response = await bookmarkService.getAll()
         if (isMounted) {
-          setBookmarks(response.data.bookmarks || [])
+          const userBookmarks = response.data.bookmarks || []
+
+          // Trie par dernier chapitre lu (descendant)
+          userBookmarks.sort(
+            (a, b) => (b.lastReadChapter || 0) - (a.lastReadChapter || 0)
+          )
+
+          setBookmarks(userBookmarks)
+          setError('')
         }
       } catch (err) {
         if (isMounted) {
@@ -49,9 +60,9 @@ export default function Dashboard() {
   return (
     <div className="page-container">
       <h1>Bienvenue, {user?.email}</h1>
-      
+
       {error && <div className="error-message">{error}</div>}
-      
+
       {loading ? (
         <p>Chargement...</p>
       ) : (
@@ -72,7 +83,21 @@ export default function Dashboard() {
                 {bookmarks.map((bookmark) => (
                   <li key={bookmark.id} className="bookmark-item">
                     <span>{bookmark.series?.title || 'Série'}</span>
-                    <span>Chapitre {bookmark.last_read_chapter || 'N/A'}</span>
+                    <span>
+                      {bookmark.series?.chapters?.length > 0 && bookmark.lastReadChapter ? (
+                        <a
+                          href={bookmark.series.chapters.find(
+                            (c) => c.number === bookmark.lastReadChapter
+                          )?.url || bookmark.series.sourceURL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Chapitre {bookmark.lastReadChapter}
+                        </a>
+                      ) : (
+                        'N/A'
+                      )}
+                    </span>
                   </li>
                 ))}
               </ul>

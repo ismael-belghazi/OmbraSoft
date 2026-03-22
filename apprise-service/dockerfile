@@ -2,19 +2,30 @@ FROM python:3.12-alpine AS builder
 
 WORKDIR /app
 
-# Installer dépendances système pour apprise
-RUN apk add --no-cache build-base libffi-dev
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN apk add --no-cache \
+    build-base \
+    libffi-dev \
+    gcc \
+    musl-dev
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip
+RUN pip install --prefix=/install --no-cache-dir -r requirements.txt
 
-COPY . .
-
-# Runtime
 FROM python:3.12-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app /app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+COPY --from=builder /install /usr/local
+COPY . .
+
+RUN adduser -D appuser
+USER appuser
 
 CMD ["python", "app.py"]

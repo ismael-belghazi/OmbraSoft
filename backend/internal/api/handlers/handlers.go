@@ -35,7 +35,7 @@ type AuthResponse struct {
 	User  *models.User `json:"user"`
 }
 
-var users = make(map[string]*models.User)
+var users = make(map[uuid.UUID]*models.User)
 
 func (h *Handler) Register(c *gin.Context) {
 	var req RegisterRequest
@@ -58,14 +58,14 @@ func (h *Handler) Register(c *gin.Context) {
 	}
 
 	user := &models.User{
-		ID:           uuid.New().String(),
+		ID:           uuid.New(), // ✅ FIX
 		Email:        req.Email,
 		PasswordHash: string(hashedPassword),
 	}
 
 	users[user.ID] = user
 
-	token, err := utils.GenerateToken(user.ID, user.Email)
+	token, err := utils.GenerateToken(user.ID.String(), user.Email)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "Erreur lors de la génération du token"})
 		return
@@ -106,7 +106,7 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateToken(user.ID, user.Email)
+	token, err := utils.GenerateToken(user.ID.String(), user.Email)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "Erreur lors de la génération du token"})
 		return

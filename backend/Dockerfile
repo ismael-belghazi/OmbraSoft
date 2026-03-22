@@ -1,42 +1,59 @@
-# Étape 1 : Build
-FROM golang:1.25-alpine AS builder
-
-# Répertoire de travail
+# ===== BUILD =====
+FROM golang:1.25 AS builder
 WORKDIR /app
 
-# Installer les certificats CA pour HTTPS
-RUN apk add --no-cache ca-certificates git
-
-# Copier les fichiers de modules et télécharger les dépendances
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copier tout le code source
 COPY . .
+RUN go build -o app ./cmd/main.go
 
-# Compiler l'application en statique
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o app ./cmd
+# Installer playwright
+RUN go install github.com/playwright-community/playwright-go/cmd/playwright@latest
 
-# Étape 2 : Runtime léger
-FROM alpine:latest
-
-# Installer les certificats CA pour HTTPS
-RUN apk add --no-cache ca-certificates bash
+# ===== RUNTIME =====
+FROM debian:bookworm-slim
 
 WORKDIR /app
 
-# Copier l'exécutable depuis l'étape builder
+# Dépendances pour Playwright
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    wget \
+    curl \
+    fonts-liberation \
+    libnss3 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libgbm1 \
+    libasound2 \
+    libpangocairo-1.0-0 \
+    libpango-1.0-0 \
+    libcairo2 \
+    libatspi2.0-0 \
+    libgtk-3-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copier playwright depuis le builder
+COPY --from=builder /go/bin/playwright /usr/local/bin/playwright
+
+RUN playwright install --with-deps
+
+ENV PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
+
+# Copier l'application
 COPY --from=builder /app/app .
 
-# Rendre l'exécutable exécutable
-RUN chmod +x /app/app
+# Créer le dossier covers si absent
+RUN mkdir -p ./public/covers
 
-# Ajouter un healthcheck pour Render
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
-
-# Exposer le port par défaut
+# Exposer le port de ton backend
 EXPOSE 8080
 
-# Commande de lancement
-CMD ["/app/app"]
+CMD ["./app"]

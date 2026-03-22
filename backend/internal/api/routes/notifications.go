@@ -15,6 +15,11 @@ type NotificationSettingsRequest struct {
 	DiscordID string `json:"discord_id"`
 }
 
+type UserNotifications struct {
+	ID     uuid.UUID `gorm:"type:uuid;primaryKey"`
+	UserID uuid.UUID `gorm:"type:uuid;uniqueIndex"`
+}
+
 func GetNotificationSettings(c *gin.Context) {
 	userID := c.GetString("userID")
 	var settings models.UserNotifications
@@ -30,9 +35,14 @@ func GetNotificationSettings(c *gin.Context) {
 		"discord_id": settings.DiscordID,
 	})
 }
-
 func UpdateNotificationSettings(c *gin.Context) {
-	userID := c.GetString("userID")
+	userIDStr := c.GetString("userID")
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "userID invalide"})
+		return
+	}
+
 	var req NotificationSettingsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
@@ -43,11 +53,11 @@ func UpdateNotificationSettings(c *gin.Context) {
 	var settings models.UserNotifications
 
 	if err := database.Where("user_id = ?", userID).First(&settings).Error; err != nil {
-		settings = models.UserNotifications{
-			ID:        uuid.NewString(),
-			UserID:    userID,
-			Push:      req.Push,
-			DiscordID: req.DiscordID,
+		settings := models.UserNotifications{
+			ID:     uuid.New(),
+			UserID: userID,
+			Email:  true,
+			Push:   true,
 		}
 		database.Create(&settings)
 	} else {

@@ -1,0 +1,227 @@
+.bookmarks-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.bookmark-card img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.bookmark-card:hover {
+  transform: translateY(-5px);
+}
+
+.cover-wrapper {
+  position: relative;
+}
+
+.cover-image {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+}
+
+.badge-new {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: #ff3f3f;
+  color: #fff;
+  padding: 2px 6px;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.card-content {
+  padding: 10px;
+}
+
+.card-content h2 {
+  font-size: 1rem;
+  margin: 0 0 8px 0;
+  color: #fff;
+}
+
+.progress-bar {
+  background: #333;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  background: #667eea;
+  height: 100%;
+}
+
+.actions {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.actions button {
+  flex: 1;
+  padding: 5px;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #fff;
+  background-color: #3498db;
+  transition: background 0.2s;
+}
+
+.actions button:hover {
+  background-color: #2980b9;
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.overlay-content {
+  display: flex;
+  max-width: 900px;
+  width: 90%;
+  background-color: #2a2a3f;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.overlay-left {
+  flex: 1;
+  padding: 20px;
+  text-align: center;
+  border-right: 1px solid #444;
+}
+
+.overlay-left img {
+  width: 100%;
+  max-width: 250px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.overlay-left h2 {
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.overlay-left .progress-bar {
+  margin-bottom: 10px;
+}
+
+.overlay-left button {
+  margin-top: 10px;
+  background-color: #667eea;
+}
+
+.overlay-left button:hover {
+  background-color: #5568d3;
+}
+
+.overlay-right {
+  flex: 1.2;
+  padding: 20px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.overlay-right ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.overlay-right li {
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.overlay-right li.chapter-read a {
+  color: #aaa;
+  text-decoration: line-through;
+}
+
+.overlay-right li a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.overlay-right li button {
+  background-color: #3498db;
+  border: none;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.overlay-right li button:hover {
+  background-color: #2980b9;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+.add-bookmark {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.add-bookmark input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  background-color: #1e1e2f;
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.add-bookmark input::placeholder {
+  color: #888;
+}
+
+.add-bookmark button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  background-color: #667eea;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-bookmark button:hover {
+  background-color: #5568d3;
+}

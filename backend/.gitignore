@@ -36,3 +36,6 @@ Thumbs.db
 
 # Node modules (if any)
 node_modules/
+
+public/covers/*
+!public/covers/default-cover.jpg

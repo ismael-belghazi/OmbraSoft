@@ -25,3 +25,13 @@ CREATE TABLE IF NOT EXISTS bookmarks (
     last_read_chapter INT,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Chapters table
+CREATE TABLE IF NOT EXISTS chapters (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    series_id UUID NOT NULL REFERENCES series(id),
+    url VARCHAR(500) NOT NULL,
+    number INT,
+    title VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

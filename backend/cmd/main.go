@@ -53,7 +53,10 @@ func main() {
 			"time":   time.Now().Unix(),
 		})
 	})
-
+	r.Static("/covers", "./public/covers")
+	r.HEAD("/health", func(c *gin.Context) {
+		c.Status(200)
+	})
 	routes.AuthRoutes(r)
 
 	bookmarkService := services.NewBookmarkSeriesService(db.DB)

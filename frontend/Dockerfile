@@ -1,5 +1,5 @@
 # Utiliser une image Node.js pour le frontend
-FROM node:20-alpine
+FROM node:20-alpine as frontend-builder
 
 WORKDIR /app
 

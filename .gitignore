@@ -38,6 +38,7 @@ docker-compose.yml
 # --- Database ---
 *.db
 *.dbmdl
+seed_manga.sql
 
 # --- Misc ---
 *.jfm

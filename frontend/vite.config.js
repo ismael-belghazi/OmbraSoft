@@ -1,20 +1,39 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
+
   server: {
-    port: 5173,  
-    host: '0.0.0.0',  
+    host: true,
+    port: 5173,
+    strictPort: true,
+    hmr: {
+      host: 'localhost',
+      port: 5173,
+    },
+
     proxy: {
-      '/auth': {
-        target: 'http://backend:8080', 
-        changeOrigin: true,  
-      },
-      '/bookmarks': {
+      '/api': {
         target: 'http://backend:8080',
         changeOrigin: true,
       },
     },
   },
-})
+
+  preview: {
+    host: true,
+    port: 4173,
+    strictPort: true,
+  },
+
+  build: {
+    outDir: 'dist',
+    sourcemap: mode !== 'production',
+    emptyOutDir: true,
+  },
+
+  define: {
+    __APP_ENV__: JSON.stringify(mode),
+  },
+}))

@@ -1,150 +1,243 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { bookmarkService } from '../services/bookmarkService';
-import '../styles/css.css';
+import { seriesService } from '../services/seriesService';
+import '../styles/Bookmarks.css';
+
+const DEFAULT_COVER = 'http://localhost:8080/covers/default-cover.jpg';
+
+// Helper pour générer l'URL de cover
+const getCoverUrl = (series) => {
+  if (!series) return DEFAULT_COVER;
+  // Priorité : cover > cover_image_url > fallback
+  const coverPath = series.cover || series.cover_image_url || DEFAULT_COVER;
+  if (coverPath.startsWith('http')) return coverPath;
+  return `http://localhost:8080${coverPath.startsWith('/') ? '' : '/'}${coverPath}`;
+};
+
+// Fonction pour mettre à jour le favicon
+const setFavicon = (url) => {
+  let link = document.querySelector("link[rel*='icon']");
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'icon';
+    document.head.appendChild(link);
+  }
+  link.href = url;
+};
 
 const useBookmarks = () => {
   const [bookmarks, setBookmarks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const isFetching = useRef(false);
 
-  const fetchBookmarks = async () => {
+  const fetchBookmarks = useCallback(async () => {
+    if (isFetching.current) return;
     try {
+      isFetching.current = true;
+      setLoading(true);
       const response = await bookmarkService.getAll();
-      setBookmarks(response.data.bookmarks || []);
-    } catch (err) {
+      // Normalisation pour garantir que series.cover est bien défini
+      const data = (response?.bookmarks || response?.data || response || []).map(b => ({
+        ...b,
+        series: {
+          ...b.series,
+          cover: b.series?.cover || b.series?.cover_image_url || DEFAULT_COVER,
+        },
+      }));
+      setBookmarks(prev => (JSON.stringify(prev) === JSON.stringify(data) ? prev : data));
+      setError('');
+      return data;
+    } catch {
       setError('Erreur lors du chargement des favoris');
+      return [];
     } finally {
       setLoading(false);
+      isFetching.current = false;
     }
-  };
+  }, []);
 
-  const deleteBookmark = async (id) => {
+  const deleteBookmark = async id => {
     try {
       await bookmarkService.delete(id);
       setBookmarks(prev => prev.filter(b => b.id !== id));
-    } catch (err) {
+    } catch {
       setError('Erreur lors de la suppression');
     }
   };
 
-  useEffect(() => {
-    fetchBookmarks();
-  }, []);
+  const updateBookmark = (bookmarkId, lastReadChapter) => {
+    setBookmarks(prev =>
+      prev.map(b => (b.id === bookmarkId ? { ...b, lastReadChapter: Number(lastReadChapter) } : b))
+    );
+  };
 
-  return { bookmarks, loading, error, deleteBookmark };
+  return { bookmarks, loading, error, setError, deleteBookmark, fetchBookmarks, updateBookmark, setBookmarks };
 };
 
-// Composant principal
 export default function Bookmarks() {
-  const [newSeries, setNewSeries] = useState({ title: '', sourceSite: '', sourceURL: '' });
-  const [adding, setAdding] = useState(false);
-  const { bookmarks, loading, error, deleteBookmark } = useBookmarks();
+  const [chapters, setChapters] = useState({});
+  const [loadingChapters, setLoadingChapters] = useState({});
+  const [activeOverlay, setActiveOverlay] = useState(null);
+  const [newLink, setNewLink] = useState('');
+  const { bookmarks, loading, error, setError, deleteBookmark, fetchBookmarks, updateBookmark } = useBookmarks();
 
-  const handleAdd = async (e) => {
-    e.preventDefault();
+  useEffect(() => { fetchBookmarks(); }, [fetchBookmarks]);
 
-    if (!newSeries.title.trim() || !newSeries.sourceURL.trim()) {
-      setError('Le titre et l\'URL sont obligatoires');
+  // Mettre à jour le favicon selon la première série avec cover
+  useEffect(() => {
+    if (bookmarks.length === 0) {
+      setFavicon(DEFAULT_COVER);
       return;
     }
+    const firstCover = bookmarks.find(b => b.series?.cover)?.series.cover || DEFAULT_COVER;
+    setFavicon(firstCover.startsWith('http') ? firstCover : `http://localhost:8080${firstCover}`);
+  }, [bookmarks]);
 
-    const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
-    if (!urlRegex.test(newSeries.sourceURL)) {
-      setError('L\'URL fournie n\'est pas valide');
-      return;
-    }
-
-    setAdding(true);
-    setError('');
-
+  const loadChapters = async (bookmarkId, seriesId) => {
     try {
-      const response = await bookmarkService.create(newSeries);
-      setNewSeries({ title: '', sourceSite: '', sourceURL: '' });
-      alert('Favori ajouté avec succès'); 
-    } catch (err) {
-      setError('Erreur lors de l\'ajout du favori');
+      setLoadingChapters(prev => ({ ...prev, [bookmarkId]: true }));
+      const res = await seriesService.getChaptersBySeriesId(seriesId);
+      const data = res?.chapters || res?.data || [];
+      setChapters(prev => ({ ...prev, [bookmarkId]: data }));
+    } catch {
+      setError('Erreur chargement chapitres');
     } finally {
-      setAdding(false);
+      setLoadingChapters(prev => ({ ...prev, [bookmarkId]: false }));
     }
   };
+
+  const openOverlay = async (bookmarkId, seriesId) => {
+    setActiveOverlay(bookmarkId);
+    if (!chapters[bookmarkId]) await loadChapters(bookmarkId, seriesId);
+  };
+
+  const closeOverlay = () => setActiveOverlay(null);
+
+  const markChapterAsRead = async (bookmarkId, chapterNumber) => {
+    try {
+      const res = await bookmarkService.markChapterAsRead(bookmarkId, chapterNumber);
+      const last = res?.lastReadChapter ?? chapterNumber;
+      updateBookmark(bookmarkId, last);
+    } catch {
+      setError('Erreur mise à jour chapitre');
+    }
+  };
+
+  const markSeriesAsRead = async bookmarkId => {
+    try {
+      const res = await bookmarkService.markSeriesAsRead(bookmarkId);
+      const last = res?.lastReadChapter ?? 0;
+      updateBookmark(bookmarkId, last);
+    } catch {
+      setError('Erreur mise à jour série');
+    }
+  };
+
+  const addBookmark = async () => {
+    const trimmedLink = newLink.trim();
+    if (!trimmedLink) {
+      setError("Le lien de la série est vide");
+      return;
+    }
+    try {
+      await bookmarkService.create(trimmedLink);
+      await fetchBookmarks();
+      setNewLink("");
+    } catch (err) {
+      setError(err.message || "Erreur lors de la création du favori");
+    }
+  };
+
+  const activeBookmark = activeOverlay !== null ? bookmarks.find(b => b.id === activeOverlay) : null;
 
   return (
     <div className="page-container">
       <h1>Mes Favoris</h1>
 
+      <div className="add-bookmark">
+        <input
+          type="text"
+          placeholder="Coller le lien de la série..."
+          value={newLink}
+          onChange={e => setNewLink(e.target.value)}
+        />
+        <button onClick={addBookmark}>Ajouter</button>
+      </div>
+
       {error && <div className="error-message">{error}</div>}
 
-      <form onSubmit={handleAdd} className="add-bookmark-form">
-        <input
-          type="text"
-          placeholder="Titre"
-          value={newSeries.title}
-          onChange={(e) => setNewSeries({ ...newSeries, title: e.target.value })}
-          disabled={adding}
-        />
-        <input
-          type="text"
-          placeholder="Source"
-          value={newSeries.sourceSite}
-          onChange={(e) => setNewSeries({ ...newSeries, sourceSite: e.target.value })}
-          disabled={adding}
-        />
-        <input
-          type="url"
-          placeholder="URL"
-          value={newSeries.sourceURL}
-          onChange={(e) => setNewSeries({ ...newSeries, sourceURL: e.target.value })}
-          disabled={adding}
-        />
-        <button type="submit" disabled={adding}>
-          {adding ? 'Ajout en cours...' : 'Ajouter'}
-        </button>
-      </form>
+      {loading ? <p>Chargement...</p> : (
+        <div className="bookmarks-gallery">
+          {bookmarks.map(bookmark => {
+            const total = Number(bookmark.series?.lastChapterNumber || 1);
+            const read = Number(bookmark.lastReadChapter || 0);
+            const progress = Math.min((read / total) * 100, 100);
+            const hasNew = total > 0 && read < total;
 
-      {loading ? (
-        <p>Chargement...</p>
-      ) : bookmarks.length === 0 ? (
-        <p>Aucun favori pour le moment</p>
-      ) : (
-        <div className="bookmarks-container">
-          <table className="bookmarks-table">
-            <thead>
-              <tr>
-                <th>Titre</th>
-                <th>Dernier chapitre lu</th>
-                <th>Source</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bookmarks.map((bookmark) => (
-                <tr key={bookmark.id}>
-                  <td>{bookmark.series?.title || '-'}</td>
-                  <td>{bookmark.last_read_chapter || 0}</td>
-                  <td>
-                    {bookmark.series?.source_url ? (
-                      <a
-                        href={bookmark.series.source_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Lire
-                      </a>
-                    ) : '-'}
-                  </td>
-                  <td>
-                    <button
-                      onClick={() => deleteBookmark(bookmark.id)}
-                      className="delete-btn"
-                    >
-                      Supprimer
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            return (
+              <div key={bookmark.id} className="bookmark-card">
+                <div className="cover-wrapper">
+                  <img
+                    src={getCoverUrl(bookmark.series)}
+                    alt={bookmark.series?.title}
+                  />
+                  {hasNew && <span className="badge-new">NEW</span>}
+                </div>
+                <div className="card-content">
+                  <h2>{bookmark.series?.title}</h2>
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{ width: `${progress}%` }} />
+                  </div>
+                  <div className="actions">
+                    <button onClick={() => openOverlay(bookmark.id, bookmark.series?.id)}>Voir chapitres</button>
+                    <button onClick={() => markSeriesAsRead(bookmark.id)}>Tout lire</button>
+                    <button onClick={() => deleteBookmark(bookmark.id)}>Supprimer</button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
+      )}
+
+      {activeBookmark && ReactDOM.createPortal(
+        <div className="overlay" onClick={closeOverlay}>
+          <div className="overlay-content" onClick={e => e.stopPropagation()}>
+            <button className="close-btn" onClick={closeOverlay}>✕</button>
+            <div className="overlay-left">
+              <img
+                src={getCoverUrl(activeBookmark.series)}
+                alt={activeBookmark.series?.title || ''}
+              />
+              <h2>{activeBookmark.series?.title}</h2>
+              <div className="progress-bar">
+                <div
+                  className="progress-fill"
+                  style={{ width: `${(activeBookmark.lastReadChapter || 0) / (activeBookmark.series?.lastChapterNumber || 1) * 100}%` }}
+                />
+              </div>
+              <button onClick={() => markSeriesAsRead(activeBookmark.id)}>Tout lire</button>
+            </div>
+            <div className="overlay-right">
+              {loadingChapters[activeOverlay] ? <p>Chargement...</p> : (
+                <ul>
+                  {chapters[activeOverlay]?.map(ch => {
+                    const isRead = Number(ch.number) <= (activeBookmark.lastReadChapter || 0);
+                    return (
+                      <li key={ch.id} className={isRead ? 'chapter-read' : ''}>
+                        <a href={ch.url} target="_blank" rel="noreferrer">Chapitre {ch.number}</a>
+                        {!isRead && <button onClick={() => markChapterAsRead(activeOverlay, ch.number)}>✔</button>}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );
