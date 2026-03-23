@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+  apprise:
+    image: caronc/apprise
+    container_name: apprise
+    volumes:
+      - ./apprise_config:/config
+    environment:
+      - PERSISTENCE_FILE=/config/apprise.db
+    ports:
+      - "8000:8000"  

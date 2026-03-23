@@ -3,28 +3,20 @@ package middleware
 import (
 	"strings"
 
-	"github.com/bebeb/ombrasoft-backend/internal/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/ismael-belghazi/ombrasoft-backend/internal/utils"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.JSON(401, gin.H{"error": "Token manquant"})
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			c.JSON(401, gin.H{"error": "Token manquant ou format invalide"})
 			c.Abort()
 			return
 		}
 
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(401, gin.H{"error": "Format de token invalide"})
-			c.Abort()
-			return
-		}
-
-		tokenString := parts[1]
-
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		claims, err := utils.VerifyToken(tokenString)
 		if err != nil {
 			c.JSON(401, gin.H{"error": "Token invalide ou expiré"})
@@ -32,7 +24,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("userID", claims.UserID)
+		c.Set("user_id", claims.UserID)
 		c.Set("email", claims.Email)
 		c.Next()
 	}

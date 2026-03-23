@@ -1,0 +1,130 @@
+:root {
+  --bg-main: #121212;
+  --bg-secondary: #1e1e2f;
+  --bg-card: #2a2a3f;
+  --bg-hover: #3a3a55;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --text-muted: #aaaaaa;
+  --border-color: #444;
+  --accent: #3498db;
+  --accent-hover: #2980b9;
+  --danger: #e74c3c;
+  --danger-hover: #c0392b;
+  --success: #667eea;
+  --success-hover: #5568d3;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--bg-secondary);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 999;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+}
+
+.navbar-logo {
+  color: var(--text-primary);
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
+
+/* Buttons */
+.logout-btn, .settings-button {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  transition: background-color 0.2s ease;
+}
+
+.logout-btn { background-color: var(--danger); }
+.logout-btn:hover { background-color: var(--danger-hover); }
+
+.settings-button { background-color: var(--accent); }
+.settings-button:hover { background-color: var(--accent-hover); }
+
+/* Page container général */
+.page-container {
+  width: 100%;
+  margin-top: 80px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Error message */
+.error-message {
+  background-color: #2b1b1b;
+  color: var(--danger);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--danger);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .nav-menu {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+.nav-link {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+}
+
+.nav-link:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}

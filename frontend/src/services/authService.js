@@ -1,13 +1,11 @@
 import api from './api'
 
 export const authService = {
-  register: (email, password) => {
-    return api.post('/auth/register', { email, password })
-  },
+  register: (email, password, secretPhrase) =>
+    api.post('/auth/register', { email, password, secretPhrase }),
 
-  login: (email, password) => {
-    return api.post('/auth/login', { email, password })
-  },
+  login: (email, password) =>
+    api.post('/auth/login', { email, password }),
 
   logout: () => {
     localStorage.removeItem('token')

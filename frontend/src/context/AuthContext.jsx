@@ -46,11 +46,11 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const register = useCallback(async (email, password) => {
+  const register = useCallback(async (email, password, secretPhrase) => {
     setLoading(true)
     setError(null)
     try {
-      const response = await authService.register(email, password)
+      const response = await authService.register(email, password, secretPhrase)
       const { token: newToken, user: newUser } = response.data
       localStorage.setItem('token', newToken)
       localStorage.setItem('user', JSON.stringify(newUser))
@@ -58,7 +58,7 @@ export function AuthProvider({ children }) {
       setUser(newUser)
       return newUser
     } catch (err) {
-      const errorMsg = err.response?.data?.message || 'Erreur d\'inscription'
+      const errorMsg = err.response?.data?.message || "Erreur d'inscription"
       setError(errorMsg)
       throw err
     } finally {

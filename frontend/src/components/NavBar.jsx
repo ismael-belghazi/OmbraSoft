@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import '../styles/navbar.css'
+import '../styles/css.css'
 
 export default function NavBar() {
   const { user, logout, isAuthenticated } = useAuth()
@@ -9,6 +9,10 @@ export default function NavBar() {
   const handleLogout = () => {
     logout()
     navigate('/login')
+  }
+
+  const goToSettings = () => {
+    navigate('/notifications')
   }
 
   return (
@@ -32,6 +36,11 @@ export default function NavBar() {
               <li className="nav-item">
                 <button onClick={handleLogout} className="nav-link logout-btn">
                   Déconnexion
+                </button>
+              </li>
+              <li className="nav-item">
+                <button className="settings-button" onClick={goToSettings}>
+                  ⚙️ Paramètres de notifications
                 </button>
               </li>
             </>

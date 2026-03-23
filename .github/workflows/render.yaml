@@ -1,0 +1,63 @@
+name: Sync Secrets & Deploy to Render (branch 1.1)
+
+on:
+  push:
+    branches:
+      - 1.1
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Production
+
+    steps:
+      - name: Debug RENDER_SERVICE_ID
+        run: |
+          if [ -z "${{ secrets.RENDER_SERVICE_ID }}" ]; then
+            echo "RENDER_SERVICE_ID est vide !"
+            exit 1
+          else
+            echo "RENDER_SERVICE_ID est présent"
+          fi
+
+      - name: Show API URL (masked)
+        run: |
+          URL="https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/env-vars"
+          echo "URL API Render : ${URL//${{ secrets.RENDER_SERVICE_ID }}/****}"
+
+      - name: Sync env vars to Render
+        run: |
+          payload=$(jq -n \
+            --arg DB_HOST "${{ secrets.DB_HOST }}" \
+            --arg DB_PORT "${{ secrets.DB_PORT }}" \
+            --arg DB_USER "${{ secrets.DB_USER }}" \
+            --arg DB_PASSWORD "${{ secrets.DB_PASSWORD }}" \
+            --arg DB_NAME "${{ secrets.DB_NAME }}" \
+            --arg DB_SSLMODE "${{ secrets.DB_SSLMODE }}" \
+            --arg REDIS_URL "${{ secrets.REDIS_URL }}" \
+            --arg JWT_SECRET "${{ secrets.JWT_SECRET }}" \
+            --arg ALLOW_ORIGINS "${{ secrets.ALLOW_ORIGINS }}" \
+            '[ 
+              {"key":"DB_HOST","value":$DB_HOST},
+              {"key":"DB_PORT","value":$DB_PORT},
+              {"key":"DB_USER","value":$DB_USER},
+              {"key":"DB_PASSWORD","value":$DB_PASSWORD},
+              {"key":"DB_NAME","value":$DB_NAME},
+              {"key":"DB_SSLMODE","value":$DB_SSLMODE},
+              {"key":"REDIS_URL","value":$REDIS_URL},
+              {"key":"JWT_SECRET","value":$JWT_SECRET},
+              {"key":"ALLOW_ORIGINS","value":$ALLOW_ORIGINS}
+            ]')
+
+          curl -v -X PUT \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/env-vars \
+            -d "$payload"
+
+      - name: Trigger Render Deploy
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys

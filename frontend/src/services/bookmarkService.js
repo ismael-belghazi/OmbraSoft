@@ -1,23 +1,87 @@
-import api from './api'
+import api from './api';
+
+const handleError = (error, message) => {
+  console.error(message, error);
+  if (error?.response?.data?.message) {
+    throw new Error(error.response.data.message);
+  }
+  throw new Error(message);
+};
+
+const DEFAULT_COVER = '/covers/default-cover.jpg';
+
+const normalizeBookmark = (b) => ({
+  ...b,
+  series: {
+    ...b.series,
+    // Priorité : cover > cover_image_url > défaut
+    cover: b.series?.cover || b.series?.cover_image_url || DEFAULT_COVER,
+  },
+});
 
 export const bookmarkService = {
-  getAll: () => {
-    return api.get('/bookmarks')
+  getAll: async () => {
+    try {
+      const res = await api.get('/bookmarks');
+      const data = res.data;
+      return (data?.bookmarks || data?.data || data || []).map(normalizeBookmark);
+    } catch (error) {
+      handleError(error, 'Erreur lors de la récupération des favoris');
+    }
   },
 
-  getOne: (id) => {
-    return api.get(`/bookmarks/${id}`)
+  getOne: async (id) => {
+    try {
+      const res = await api.get(`/bookmarks/${id}`);
+      return normalizeBookmark(res.data);
+    } catch (error) {
+      handleError(error, `Erreur lors de la récupération du favori ${id}`);
+    }
   },
 
-  create: (bookmark) => {
-    return api.post('/bookmarks', bookmark)
+  create: async (sourceURL) => {
+    try {
+      if (!sourceURL?.trim()) throw new Error("Lien vide");
+      const res = await api.post('/bookmarks', { sourceURL: sourceURL.trim() });
+      return normalizeBookmark(res.data);
+    } catch (error) {
+      handleError(error, 'Erreur lors de la création du favori');
+    }
   },
 
-  update: (id, bookmark) => {
-    return api.patch(`/bookmarks/${id}`, bookmark)
+  update: async (id, bookmark) => {
+    try {
+      const res = await api.patch(`/bookmarks/${id}`, bookmark);
+      return normalizeBookmark(res.data);
+    } catch (error) {
+      handleError(error, `Erreur lors de la mise à jour du favori ${id}`);
+    }
   },
 
-  delete: (id) => {
-    return api.delete(`/bookmarks/${id}`)
+  delete: async (id) => {
+    try {
+      const res = await api.delete(`/bookmarks/${id}`);
+      return res.data;
+    } catch (error) {
+      handleError(error, `Erreur lors de la suppression du favori ${id}`);
+    }
+  },
+
+  markChapterAsRead: async (bookmarkId, chapterNumber) => {
+    try {
+      const res = await api.patch(`/bookmarks/${bookmarkId}/chapters/${chapterNumber}/read`);
+      return res.data?.data || res.data;
+    } catch (error) {
+      handleError(error, `Erreur lors du marquage du chapitre ${chapterNumber} comme lu`);
+    }
+  },
+
+  markSeriesAsRead: async (bookmarkId) => {
+    try {
+      const res = await api.patch(`/bookmarks/${bookmarkId}/series/read`);
+      return res.data?.data || res.data;
+    } catch (error) {
+      handleError(error, 'Erreur lors du marquage de la série comme lue');
+    }
   }
-}
+};
