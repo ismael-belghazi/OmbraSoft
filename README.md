@@ -56,13 +56,13 @@ Frontend : http://localhost:5173
 Backend : http://localhost:8080
 
 ### Utilisation
-Ajouter un bookmark
-    Via le formulaire disponible sur le frontend
-Supprimer un bookmark
-    Cliquer sur l’icône de suppression associée
-Consulter les séries
-    La page principale affiche toutes les séries liées aux bookmarks
-    Chaque série contient une image et des informations détaillées
+- Ajouter un bookmark
+    - Via le formulaire disponible sur le frontend
+- Supprimer un bookmark
+    - Cliquer sur l’icône de suppression associée
+- Consulter les séries
+    - La page principale affiche toutes les séries liées aux bookmarks
+    - Chaque série contient une image et des informations détaillées
 
 
 ### important les Source des séries actuellement pris en charge 
@@ -70,20 +70,20 @@ Consulter les séries
 https://raijin-scans.fr/
 
 ### Exemple d’utilisation :
-Aller sur une série, par exemple :
-    https://raijin-scans.fr/manga/nano-machine-1/
-Copier l’URL de la série
-    L’ajouter dans l’application via le formulaire de bookmark
+- Aller sur une série, par exemple :
+   - https://raijin-scans.fr/manga/nano-machine-1/
+- Copier l’URL de la série
+   - L’ajouter dans l’application via le formulaire de bookmark
 
 
-### API Backend
-Bookmarks
-    GET /bookmarks : récupérer tous les bookmarks
-    POST /bookmarks : créer un bookmark
-    DELETE /bookmarks/:id : supprimer un bookmark (et ses séries associées)
-Séries
-    GET /series : récupérer toutes les séries
-    POST /series : créer une série
+### API Backend :
+- Bookmarks
+    - GET /bookmarks : récupérer tous les bookmarks
+    - POST /bookmarks : créer un bookmark
+    - DELETE /bookmarks/:id : supprimer un bookmark (et ses séries associées)
+- Séries
+    - GET /series : récupérer toutes les séries
+    - POST /series : créer une série
 
 
 # licence
