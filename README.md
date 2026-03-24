@@ -22,7 +22,7 @@ Avant de lancer le projet, assurez-vous d’avoir installé :
 - Docker : https://www.docker.com/  
 - Docker Compose : https://docs.docker.com/compose/  
 
-Optionnel (pour développement local sans Docker) :
+Optionnel (pour modifier le prooject) :
 
 - Go : https://golang.org/dl/  
 - Node.js : https://nodejs.org/  
