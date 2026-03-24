@@ -4,12 +4,15 @@ import { bookmarkService } from '../services/bookmarkService'
 import { useNavigate } from 'react-router-dom'
 import '../styles/Dashboard.css'
 
+const SERIES_PER_PAGE = 10
+
 export default function Dashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [bookmarks, setBookmarks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [seriesPage, setSeriesPage] = useState(1)
 
   useEffect(() => {
     if (!user) navigate('/login')
@@ -24,18 +27,15 @@ export default function Dashboard() {
       try {
         setLoading(true)
         const data = await bookmarkService.getAll()
-
         if (isMounted) {
           const userBookmarks = Array.isArray(data) ? data : []
-
           userBookmarks.sort(
             (a, b) => (b.lastReadChapter || 0) - (a.lastReadChapter || 0)
           )
-
           setBookmarks(userBookmarks)
           setError('')
         }
-      } catch (err) {
+      } catch {
         if (isMounted) setError('Erreur lors du chargement des favoris')
       } finally {
         if (isMounted) setLoading(false)
@@ -43,11 +43,14 @@ export default function Dashboard() {
     }
 
     fetchBookmarks()
-
-    return () => {
-      isMounted = false
-    }
+    return () => { isMounted = false }
   }, [user])
+
+  const totalPages = Math.ceil(bookmarks.length / SERIES_PER_PAGE)
+  const paginatedBookmarks = bookmarks.slice(
+    (seriesPage - 1) * SERIES_PER_PAGE,
+    seriesPage * SERIES_PER_PAGE
+  )
 
   return (
     <div className="page-container">
@@ -68,11 +71,11 @@ export default function Dashboard() {
 
           <section className="recent-bookmarks">
             <h2>Vos derniers favoris</h2>
-            {bookmarks.length === 0 ? (
+            {paginatedBookmarks.length === 0 ? (
               <p>Aucun favori pour le moment</p>
             ) : (
               <ul className="bookmarks-list">
-                {bookmarks.map((bookmark) => {
+                {paginatedBookmarks.map((bookmark) => {
                   const lastChapterNumber = bookmark.lastReadChapter || 0
                   const chapter =
                     bookmark.series?.chapters?.find(
@@ -93,6 +96,14 @@ export default function Dashboard() {
                   )
                 })}
               </ul>
+            )}
+
+            {totalPages > 1 && (
+              <div className="series-pagination">
+                <button disabled={seriesPage === 1} onClick={() => setSeriesPage(seriesPage - 1)}>Précédent</button>
+                <span>Page {seriesPage} / {totalPages}</span>
+                <button disabled={seriesPage === totalPages} onClick={() => setSeriesPage(seriesPage + 1)}>Suivant</button>
+              </div>
             )}
           </section>
         </div>
