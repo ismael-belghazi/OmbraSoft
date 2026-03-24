@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { bookmarkService } from '../services/bookmarkService'
 import { useNavigate } from 'react-router-dom'
-import '../styles/css.css'
+import '../styles/Dashboard.css'
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -11,14 +11,10 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Redirection si non connecté
   useEffect(() => {
-    if (!user) {
-      navigate('/login')
-    }
+    if (!user) navigate('/login')
   }, [user, navigate])
 
-  // Récupération des bookmarks de l'utilisateur
   useEffect(() => {
     if (!user) return
 
@@ -27,11 +23,11 @@ export default function Dashboard() {
     const fetchBookmarks = async () => {
       try {
         setLoading(true)
-        const response = await bookmarkService.getAll()
-        if (isMounted) {
-          const userBookmarks = response.data.bookmarks || []
+        const data = await bookmarkService.getAll()
 
-          // Trie par dernier chapitre lu (descendant)
+        if (isMounted) {
+          const userBookmarks = Array.isArray(data) ? data : []
+
           userBookmarks.sort(
             (a, b) => (b.lastReadChapter || 0) - (a.lastReadChapter || 0)
           )
@@ -40,13 +36,9 @@ export default function Dashboard() {
           setError('')
         }
       } catch (err) {
-        if (isMounted) {
-          setError('Erreur lors du chargement des favoris')
-        }
+        if (isMounted) setError('Erreur lors du chargement des favoris')
       } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
+        if (isMounted) setLoading(false)
       }
     }
 
@@ -80,26 +72,26 @@ export default function Dashboard() {
               <p>Aucun favori pour le moment</p>
             ) : (
               <ul className="bookmarks-list">
-                {bookmarks.map((bookmark) => (
-                  <li key={bookmark.id} className="bookmark-item">
-                    <span>{bookmark.series?.title || 'Série'}</span>
-                    <span>
-                      {bookmark.series?.chapters?.length > 0 && bookmark.lastReadChapter ? (
-                        <a
-                          href={bookmark.series.chapters.find(
-                            (c) => c.number === bookmark.lastReadChapter
-                          )?.url || bookmark.series.sourceURL}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Chapitre {bookmark.lastReadChapter}
+                {bookmarks.map((bookmark) => {
+                  const lastChapterNumber = bookmark.lastReadChapter || 0
+                  const chapter =
+                    bookmark.series?.chapters?.find(
+                      (c) => Number(c.number) === Number(lastChapterNumber)
+                    ) || {}
+
+                  const chapterUrl = chapter.url || bookmark.series?.sourceURL || '#'
+
+                  return (
+                    <li key={bookmark.id} className="bookmark-item">
+                      <span>{bookmark.series?.title || 'Série'}</span>
+                      <span>
+                        <a href={chapterUrl} target="_blank" rel="noopener noreferrer">
+                          Chapitre {lastChapterNumber}
                         </a>
-                      ) : (
-                        'N/A'
-                      )}
-                    </span>
-                  </li>
-                ))}
+                      </span>
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </section>
