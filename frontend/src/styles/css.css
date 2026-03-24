@@ -2,40 +2,45 @@
   --bg-main: #121212;
   --bg-secondary: #1e1e2f;
   --bg-card: #2a2a3f;
-  --bg-hover: #3a3a55;
-  --text-primary: #ffffff;
+  --bg-hover: #33354d;
+  --text-primary: #f0f0f0;
   --text-secondary: #cccccc;
   --text-muted: #aaaaaa;
   --border-color: #444;
-  --accent: #3498db;
-  --accent-hover: #2980b9;
-  --danger: #e74c3c;
-  --danger-hover: #c0392b;
-  --success: #667eea;
-  --success-hover: #5568d3;
+  --accent: #667eea;
+  --accent-hover: #5568d3;
+  --danger: #ff6b6b;
+  --danger-hover: #e74c3c;
+  --success: #67e667;
+  --success-hover: #4caf50;
 }
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html, body {
-  margin: 0;
-  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: var(--bg-main);
   color: var(--text-primary);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
+  scroll-behavior: smooth;
 }
 
-/* Navbar */
 .navbar {
   background-color: var(--bg-secondary);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
   position: fixed;
   top: 0;
   width: 100%;
   z-index: 999;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.navbar:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.7);
 }
 
 .navbar-container {
@@ -45,51 +50,85 @@ html, body {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .navbar-logo {
   color: var(--text-primary);
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: bold;
   text-decoration: none;
+  text-shadow: 0 0 5px rgba(255,255,255,0.2);
 }
 
 .nav-menu {
   display: flex;
   list-style: none;
-  gap: 2rem;
+  gap: 1.5rem;
   align-items: center;
   padding: 0;
-  margin: 0;
 }
 
-/* Buttons */
-.logout-btn, .settings-button {
+.nav-link {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 6px 14px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.nav-link:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  transform: translateY(-1px);
+}
+
+button, .logout-btn, .settings-button {
   padding: 0.6rem 1.2rem;
   border-radius: 8px;
   border: none;
   cursor: pointer;
-  color: #fff;
-  transition: background-color 0.2s ease;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
-.logout-btn { background-color: var(--danger); }
-.logout-btn:hover { background-color: var(--danger-hover); }
+.logout-btn {
+  background-color: var(--danger);
+  color: #fff;
+}
 
-.settings-button { background-color: var(--accent); }
-.settings-button:hover { background-color: var(--accent-hover); }
+.logout-btn:hover {
+  background-color: var(--danger-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
 
-/* Page container général */
+.settings-button {
+  background-color: var(--accent);
+  color: #fff;
+}
+
+.settings-button:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
 .page-container {
   width: 100%;
-  margin-top: 80px;
-  padding: 20px;
+  margin-top: 90px;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.5rem;
 }
 
-/* Error message */
 .error-message {
   background-color: #2b1b1b;
   color: var(--danger);
@@ -97,34 +136,19 @@ html, body {
   border-radius: 8px;
   margin-bottom: 1rem;
   border-left: 4px solid var(--danger);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  font-weight: 500;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .navbar-container {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 0.8rem;
   }
 
   .nav-menu {
     flex-wrap: wrap;
     gap: 0.5rem;
   }
-}
-.nav-link {
-  color: var(--text-primary);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1.1rem;
-  padding: 6px 12px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  background: linear-gradient(135deg, #3b82f6, #1e40af);
-}
-
-.nav-link:hover {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }

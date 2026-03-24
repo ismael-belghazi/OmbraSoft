@@ -1,0 +1,120 @@
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #121212; 
+  padding: 1rem;
+}
+
+.auth-form {
+  width: 100%;
+  max-width: 400px;
+  background-color: #1e1e2f;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-form:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+}
+
+.auth-form h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #f0f0f0;
+  margin-bottom: 1rem;
+}
+
+.auth-form input {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background-color: #2a2a3f;
+  color: #f0f0f0;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s ease, background 0.2s ease;
+}
+
+.auth-form input::placeholder {
+  color: #aaa;
+}
+
+.auth-form input:focus {
+  border-color: #667eea;
+  background-color: #33354d;
+}
+
+.auth-form button {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background-color: #667eea;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.auth-form button:hover:not(:disabled) {
+  background-color: #5568d3;
+  transform: translateY(-1px);
+}
+
+.auth-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message,
+.success-message {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.error-message {
+  background-color: #3b1b1b;
+  color: #ff6b6b;
+  border-left: 4px solid #ff5c5c;
+}
+
+.success-message {
+  background-color: #1b3b1b;
+  color: #67e667;
+  border-left: 4px solid #4caf50;
+}
+
+.auth-form p {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.auth-form a {
+  color: #667eea;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.auth-form a:hover {
+  color: #5568d3;
+}
+
+@media (max-width: 500px) {
+  .auth-form {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+}
